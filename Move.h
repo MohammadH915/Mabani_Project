@@ -52,7 +52,7 @@ void Normal_Move(char* st) {
 		for(int i = 0; i < HOLES_NUMBER; i++) {
 			if(Is_In_Move[ghole[i].x][ghole[i].y] == true && ghole[i].sit == true) {
 				for(int j = 0; j < HOLES_NUMBER; j++) {
-					if(i != j && ghole[j].sit && Is_In_Move[ghole[i].x][ghole[i].y] == false) {
+					if(i != j && ghole[j].sit && Is_In_Move[ghole[j].x][ghole[j].y] == false) {
 						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
 						nw->x = ghole[j].x;
 						nw->y = ghole[j].y;
@@ -122,7 +122,7 @@ void MS_MOVE() {
 		for(int i = 0; i < HOLES_NUMBER; i++) {
 			if(Is_In_Move[ghole[i].x][ghole[i].y] == true && ghole[i].sit == true) {
 				for(int j = 0; j < HOLES_NUMBER; j++) {
-					if(i != j && ghole[j].sit && Is_In_Move[ghole[i].x][ghole[i].y] == false) {
+					if(i != j && ghole[j].sit && Is_In_Move[ghole[j].x][ghole[j].y] == false) {
 						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
 						nw->x = ghole[j].x;
 						nw->y = ghole[j].y;
