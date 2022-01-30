@@ -903,8 +903,43 @@ void JMap_Render() {
 		if(nd->BUTTON_SETIATION != IS_DONE && nd->BUTTON_SETIATION != IS_NOT_SELECT) {
 			int x1 = SCREEN_WIDTH - 3 * HEXAGON_HEIGHT + CBUTTON_WIGHT + HEXAGON_HEIGHT / 4, y1 = cnt * HEXAGON_HEIGHT * 2 + HEXAGON_HEIGHT / 2;
 			int x2 = x1, y2 = y1 + CBUTTON_HEIGHT / 2 + 2;
+			SDL_Color color = {0, 0, 0};
 			boxRGBA(gRenderer, x1, y1, SCREEN_WIDTH, y1 + CBUTTON_HEIGHT / 2 - 2, 160, 255, 47, 255);
+			char t[5] = "MOVE\0";
+			Print(t, x1, y1, SCREEN_WIDTH - x1, CBUTTON_HEIGHT / 2 - 2, color);
 			boxRGBA(gRenderer, x2, y2, SCREEN_WIDTH, y2 + CBUTTON_HEIGHT / 2 - 2, 160, 255, 47, 255);
+			if(strcmp("SH", nd->str) == 0) {
+				char ab[13] = "Show a Cart\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("JW", nd->str) == 0) {
+				char ab[14] = "Light a Side\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("JS", nd->str) == 0) {
+				char ab[16] = "Change a Light\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("IL", nd->str) == 0) {
+				char ab[15] = "Change a Exit\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("MS", nd->str) == 0) {
+				char ab[18] = "Move from Houses\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}			
+			else if(strcmp("SG", nd->str) == 0) {
+				char ab[13] = "SOOT MIZANE\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
+			else if(strcmp("WG", nd->str) == 0) {
+				char ab[30] = "Change location with another\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
+			else if(strcmp("MS", nd->str) == 0) {
+				char ab[16] = "Chanege a Hole\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
 		}
 		if(nd->BUTTON_SETIATION == IS_SELECTED_AND_SELECT_MOVE || nd->BUTTON_SETIATION == IS_SELECTED_ABILITY_MOVE_IS_GOING) {
 			struct Move_Plans* nw = rt->nxt;

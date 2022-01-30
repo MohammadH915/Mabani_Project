@@ -58,6 +58,10 @@ void Normal_Move(char* st) {
 						nw->y = ghole[j].y;
 						nw->nxt = rt->nxt;
 						rt->nxt = nw;
+						if(IS_CHARECTER_IN(ghole[j].x, ghole[j].y)) 
+							nw->JACK_Capture = true;
+						else 
+							nw->JACK_Capture = false;
 					}
 				}
 			}
@@ -128,6 +132,10 @@ void MS_MOVE() {
 						nw->y = ghole[j].y;
 						nw->nxt = rt->nxt;
 						rt->nxt = nw;
+						if(IS_CHARECTER_IN(ghole[j].x, ghole[j].y)) 
+							nw->JACK_Capture = true;
+						else 
+							nw->JACK_Capture = false;
 					}
 				}
 			}
