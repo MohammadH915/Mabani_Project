@@ -131,6 +131,8 @@ SLighstHolesExits glight[MAX_LIGHT], ghole[MAX_HOLES], gexit[MAX_EXIT];
 
 TTF_Font* gFont;
 
+TTF_Font* gFont2;
+
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
@@ -262,7 +264,11 @@ struct Move_Plans* rt;
 bool Is_In_Move[MAX_CELL_WIDTH][MAX_CELL_HIGHT];
 
 void Print(char *st, int x, int y, int texW, int texH, SDL_Color color) {
- 	SDL_Surface* surface = TTF_RenderText_Solid(gFont, st, color);
+	SDL_Surface* surface;
+	if(x > SCREEN_WIDTH - 4 * CBUTTON_WIGHT)
+		surface = TTF_RenderText_Solid(gFont2, st, color);
+	else
+ 		surface = TTF_RenderText_Solid(gFont, st, color);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
    	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
     SDL_Rect dstrect = {x, y, texW, texH };
@@ -936,7 +942,7 @@ void JMap_Render() {
 				char ab[30] = "Change location with another\0";
 				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
 			}	
-			else if(strcmp("MS", nd->str) == 0) {
+			else if(strcmp("JB", nd->str) == 0) {
 				char ab[16] = "Chanege a Hole\0";
 				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
 			}	
@@ -1141,6 +1147,7 @@ int main() {
 	Input();
 	TTF_Init();
 	gFont = TTF_OpenFont( "IRNazanin.ttf", 28);
+	gFont2 = TTF_OpenFont( "IRNazanin.ttf", 20);
 	if(gFont == NULL) {
 		printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
 		return 0;
