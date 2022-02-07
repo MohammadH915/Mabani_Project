@@ -131,6 +131,8 @@ SLighstHolesExits glight[MAX_LIGHT], ghole[MAX_HOLES], gexit[MAX_EXIT];
 
 TTF_Font* gFont;
 
+TTF_Font* gFont2;
+
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
@@ -262,7 +264,11 @@ struct Move_Plans* rt;
 bool Is_In_Move[MAX_CELL_WIDTH][MAX_CELL_HIGHT];
 
 void Print(char *st, int x, int y, int texW, int texH, SDL_Color color) {
- 	SDL_Surface* surface = TTF_RenderText_Solid(gFont, st, color);
+	SDL_Surface* surface;
+	if(x > SCREEN_WIDTH - 4 * CBUTTON_WIGHT)
+		surface = TTF_RenderText_Solid(gFont2, st, color);
+	else
+ 		surface = TTF_RenderText_Solid(gFont, st, color);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
    	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
     SDL_Rect dstrect = {x, y, texW, texH };
@@ -362,158 +368,7 @@ bool IS_CHARECTER_IN(int x, int y) {
 	}	
 	return false;
 }
-
-void Normal_Move(char* st) {
-	for(int i = 1; i <= CELL_WIDTH; i++) 
-		for(int j = 1; j <= CELL_HEIGHT; j++) 
-			Is_In_Move[i][j] = false;
-	Is_In_Move[rt->x][rt->y] = true;
-	for(int k = 1; k <= 3; k++) {
-		for(int i = 1; i <= CELL_WIDTH; i++) {
-			for(int j = 1; j <= CELL_HEIGHT; j++) {
-				if(strcmp(st, WHO_IS_JACK) == 0 && Is_In_Move[i][j] == true && k == 3 && Jack_Show == false) {
-					if(gcell[i][j].exit == true) {
-						for(int h = 0; h < EXIT_NUMBER; h++) {
-							if(i == gexit[h].x && j == gexit[h].y && gexit[h].sit == true) {
-								JACK_WIN();
-								BUTTON_END = true;
-								return;
-							}
-						}
-					}
-				}
-				if(Is_In_Move[i][j] || gcell[i][j].house || gcell[i][j].light)
-					continue;
-				if(i % 2 == 0) {
-					if(Is_In_Move[i - 1][j] || Is_In_Move[i - 1][j - 1] || Is_In_Move[i][j + 1] || Is_In_Move[i][j - 1] || Is_In_Move[i + 1][j] || Is_In_Move[i + 1][j - 1]) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = i;
-						nw->y = j; 
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-						if(IS_CHARECTER_IN(i, j)) 
-							nw->JACK_Capture = true;
-						else 
-							nw->JACK_Capture = false;
-					}
-				}
-				if(i % 2 == 1) {
-					if(Is_In_Move[i - 1][j] || Is_In_Move[i - 1][j + 1] || Is_In_Move[i][j + 1] || Is_In_Move[i][j - 1] || Is_In_Move[i + 1][j] || Is_In_Move[i + 1][j + 1]) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = i;
-						nw->y = j;
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-						if(IS_CHARECTER_IN(i, j)) 
-							nw->JACK_Capture = true;
-						else 
-							nw->JACK_Capture = false;
-					}
-				}
-			}
-		}
-		for(int i = 0; i < HOLES_NUMBER; i++) {
-			if(Is_In_Move[ghole[i].x][ghole[i].y] == true && ghole[i].sit == true) {
-				for(int j = 0; j < HOLES_NUMBER; j++) {
-					if(i != j && ghole[j].sit && Is_In_Move[ghole[j].x][ghole[j].y] == false) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = ghole[j].x;
-						nw->y = ghole[j].y;
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-					}
-				}
-			}
-		}
-		struct Move_Plans* nd = rt->nxt;
-		while(nd != NULL) {
-			Is_In_Move[nd->x][nd->y] = true;
-			nd = nd->nxt;
-		}
-	}
-}
-
-void MS_MOVE() {
-	for(int i = 1; i <= CELL_WIDTH; i++) 
-		for(int j = 1; j <= CELL_HEIGHT; j++) 
-			Is_In_Move[i][j] = false;
-	Is_In_Move[rt->x][rt->y] = true;
-	for(int k = 1; k <= 3; k++) {
-		for(int i = 1; i <= CELL_WIDTH; i++) {
-			for(int j = 1; j <= CELL_HEIGHT; j++) {
-				if(strcmp("MS", WHO_IS_JACK) == 0 && Is_In_Move[i][j] == true && k == 3 && Jack_Show == false) {
-					if(gcell[i][j].exit == true) {
-						for(int h = 0; h < EXIT_NUMBER; h++) {
-							if(i == gexit[h].x && j == gexit[h].y && gexit[h].sit == true) {
-								JACK_WIN();
-								BUTTON_END = true;
-								return;
-							}
-						}
-					}
-				}
-				if(Is_In_Move[i][j])
-					continue;
-				if(i % 2 == 0) {
-					if(Is_In_Move[i - 1][j] || Is_In_Move[i - 1][j - 1] || Is_In_Move[i][j + 1] || Is_In_Move[i][j - 1] || Is_In_Move[i + 1][j] || Is_In_Move[i + 1][j - 1]) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = i;
-						nw->y = j;
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-						if(IS_CHARECTER_IN(i, j)) 
-							nw->JACK_Capture = true;
-						else 
-							nw->JACK_Capture = false;
-					}
-				}
-				if(i % 2 == 1) {
-					if(Is_In_Move[i - 1][j] || Is_In_Move[i - 1][j + 1] || Is_In_Move[i][j + 1] || Is_In_Move[i][j - 1] || Is_In_Move[i + 1][j] || Is_In_Move[i + 1][j + 1]) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = i;
-						nw->y = j;
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-						if(IS_CHARECTER_IN(i, j)) 
-							nw->JACK_Capture = true;
-						else 
-							nw->JACK_Capture = false;
-					}
-				}
-			}
-		}
-		for(int i = 0; i < HOLES_NUMBER; i++) {
-			if(Is_In_Move[ghole[i].x][ghole[i].y] == true && ghole[i].sit == true) {
-				for(int j = 0; j < HOLES_NUMBER; j++) {
-					if(i != j && ghole[j].sit && Is_In_Move[ghole[j].x][ghole[j].y] == false) {
-						struct Move_Plans* nw = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-						nw->x = ghole[j].x;
-						nw->y = ghole[j].y;
-						nw->nxt = rt->nxt;
-						rt->nxt = nw;
-					}
-				}
-			}
-		}
-		struct Move_Plans* nd = rt->nxt;
-		while(nd != NULL) {
-			Is_In_Move[nd->x][nd->y] = true;
-			nd = nd->nxt;
-		}
-	}
-	struct Move_Plans* nd = rt->nxt;
-	struct Move_Plans* pre = rt;
-	while(nd != NULL) {
-		if(gcell[nd->x][nd->y].light || gcell[nd->x][nd->y].house) {
-			pre->nxt = nd->nxt;
-			nd = nd->nxt;
-		}
-		else {
-			pre = nd;
-			nd = nd->nxt;
-		}
-	}
-}
+#include "Move.h"
 
 void Change_Location(int x, int y, int i, int j) {
 	struct Linked_List* nd = gcharecter->nxt;
@@ -528,347 +383,6 @@ void Change_Location(int x, int y, int i, int j) {
 	return;
 }
 
-bool JSAbility(SDL_Event* e) {
-	if(JS_SITUATION.x == 0 && JS_SITUATION.y == 0) {
-		for(int k = 0; k < LIGHT_NUMBER; k++) {
-			if(glight[k].sit == true)
-				continue;
-			int i = glight[k].x, j = glight[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JS_SITUATION.x = i, JS_SITUATION.y = j;
-				JS_SITUATION.id = k;
-				return false;
-			}					
-		}
-	}
-	else {
-		for(int k = 0; k < LIGHT_NUMBER; k++) {
-			if(glight[k].sit == false)
-				continue;
-			int i = glight[k].x, j = glight[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				glight[k].sit = false;
-				glight[JS_SITUATION.id].sit = true;
-				JS_SITUATION.x = JS_SITUATION.y = JS_SITUATION.id = 0;
-				return true;
-			}					
-		}
-	}
-	return false;
-}
-
-bool ILAbility(SDL_Event* e) {
-	if(IL_SITUATION.x == 0 && IL_SITUATION.y == 0) {
-		for(int k = 0; k < EXIT_NUMBER; k++) {
-			if(gexit[k].sit == true)
-				continue;
-			int i = gexit[k].x, j = gexit[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				IL_SITUATION.x = i, IL_SITUATION.y = j;
-				IL_SITUATION.id = k;
-				return false;
-			}					
-		}
-	}
-	else {
-		for(int k = 0; k < EXIT_NUMBER; k++) {
-			if(gexit[k].sit == false)
-				continue;
-			int i = gexit[k].x, j = gexit[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				gexit[k].sit = false;
-				gexit[IL_SITUATION.id].sit = true;
-				IL_SITUATION.x = IL_SITUATION.y = IL_SITUATION.id = 0;
-				return true;
-			}		
-		}
-	}
-	return false;
-}
-
-bool JBAbility(SDL_Event* e) {
-	if(JB_SITUATION.x == 0 && JB_SITUATION.y == 0) {
-		for(int k = 0; k < HOLES_NUMBER; k++) {
-			if(ghole[k].sit == true)
-				continue;
-			int i = ghole[k].x, j = ghole[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JB_SITUATION.x = i, JB_SITUATION.y = j;
-				JB_SITUATION.id = k;
-				return false;
-			}					
-		}
-	}
-	else {
-		for(int k = 0; k < HOLES_NUMBER; k++) {
-			if(ghole[k].sit == false)
-				continue;
-			int i = ghole[k].x, j = ghole[k].y;
-			if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-				ghole[k].sit = false;
-				ghole[JB_SITUATION.id].sit = true;
-				JB_SITUATION.x = JB_SITUATION.y = JB_SITUATION.id = 0;
-				return true;
-			}		
-		}
-	}
-	return false;
-}
-
-void SHAbility() {
-	int sz = 0;
-	struct Linked_List* nd = SHcharecter->nxt;
-	struct Linked_List* nh;
-	while(nd != NULL) {
-		sz++;
-		nh = gcharecter->nxt;	
-		while(nh != NULL) {
-			
-			if(strcmp(nh->str, nd->str) == 0) {
-				nd->x = nh->x;
-				nd->y = nh->y;
-				break;
-			}
-			nh = nh->nxt;
-		}		
-		nd = nd->nxt;
-	}
-	int cnt = rand() % sz;
-	nd = SHcharecter->nxt;
-	struct Linked_List* pre = SHcharecter;
-	while(cnt && nd != NULL) {
-		pre = nd;
-		nd = nd->nxt;
-		cnt--;
-	}
-	pre->nxt = nd->nxt;
-	nh = gcharecter->nxt;
-	while(nh != NULL) {
-		if(nh->x == nd->x && nh->y == nd->y) {
-			nh->Innocent = true;
-			break;
-		}
-		nh = nh->nxt;
-	}
-	cnt = 100;
-	while(cnt--) {
-  		SDL_SetRenderDrawColor(gRenderer, 102, 94, 76, 0);
-  		SDL_RenderClear(gRenderer);
-  		SDL_Event sdlEvent;
-  		int SHUTDOWNCODE=0;
-	    while (SDL_PollEvent(&sdlEvent)) {
-	        if (sdlEvent.type==SDL_QUIT) {
-	            SHUTDOWNCODE=1;
-	            break;
-	        }
-	    }
-	    if (SHUTDOWNCODE) break;
-		char t[21] = "JACK IS NOT --->>>>>";
-		SDL_Color color = {0, 0, 0};
-		Print(t, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, color);	
-		Print(nd->str, SCREEN_WIDTH / 4 + 250, SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, color);	
-		SDL_RenderPresent(gRenderer);
-  		SDL_Delay(1000/FPS);
-  	}
-}
-
-bool WGAbility(SDL_Event* e) {
-	struct Linked_List* nd = gcharecter->nxt;
-	struct Linked_List* nw = gcharecter;
-	struct Linked_List* nh = NULL;
-	while(nd != NULL) {
-		if(strcmp(nd->str, "WG") == 0) 
-			nw = nd;
-		else if(Inside_CELL(e, nd->x, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-			nh = nd;
-			break;
-		}
-		nd = nd->nxt;
-	}
-	if(nh == NULL)
-		return false;
-	int x1 = nw->x, x2 = nh->x, y1 = nw->y, y2 = nh->y;
-	Change_Location(x1, y1, 0, 0);
-	Change_Location(x2, y2, x1, y1);
-	Change_Location(0, 0, x2, y2);
-	return true;
-}
-
-bool JWAbility(SDL_Event* e) {
-	struct Linked_List* nd = gcharecter->nxt;
-	struct Linked_List* nw = gcharecter;
-	while(nd != NULL) {
-		if(strcmp(nd->str, "JW") == 0) 
-			nw = nd;
-		nd = nd->nxt;
-	}
-	nd = nw;
-	if(nd->y > 1 && Inside_CELL(e, nd->x, nd->y - 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-		JW_LIGHT = UP;
-		return true;
-	}
-	else if(nd->y < CELL_HEIGHT && Inside_CELL(e, nd->x, nd->y + 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-		JW_LIGHT = DOWN;
-		return true;
-	}
-	else {
-		if(nd->x % 2 == 0) {
-			if(nd->x > 1 && nd->y > 1 && Inside_CELL(e, nd->x - 1, nd->y - 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = LEFT_UP;
-				return true;
-			}
-			else if(nd->x > 1 && Inside_CELL(e, nd->x - 1, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = LEFT_DOWN;
-				return true;
-			}
-			else if(nd->x < CELL_WIDTH && nd->y > 1 && Inside_CELL(e, nd->x + 1, nd->y - 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = RIGHT_UP;
-				return true;
-			}
-			else if(nd->x < CELL_WIDTH && Inside_CELL(e, nd->x + 1, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = RIGHT_DOWN;
-				return true;
-			}
-		}
-		else {
-			if(nd->x > 1 && Inside_CELL(e, nd->x - 1, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = LEFT_UP;
-				return true;
-			}
-			else if(nd->x > 1 && nd->y < CELL_HEIGHT && Inside_CELL(e, nd->x - 1, nd->y + 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = LEFT_DOWN;
-				return true;
-			}
-			else if(nd->x < CELL_WIDTH && Inside_CELL(e, nd->x + 1, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = RIGHT_UP;
-				return true;
-			}
-			else if(nd->x < CELL_WIDTH && nd->y < CELL_HEIGHT && Inside_CELL(e, nd->x + 1, nd->y + 1) == BUTTON_SPRITE_MOUSE_DOWN) {
-				JW_LIGHT = RIGHT_DOWN;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool SGAbility(SDL_Event* e) {
-	struct Linked_List* nd = gcharecter->nxt;
-	struct Linked_List* nw = gcharecter;
-	while(nd != NULL) {
-		if(strcmp(nd->str, "SG") == 0) 
-			nw = nd;
-		nd = nd->nxt;
-	}
-	nd = nw;
-	if(Inside_CELL(e, nd->x, nd->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-		ON_MOVE.x = ON_MOVE.y = ON_MOVE.id = SG_ABILITY_USE = 0;
-		return true;
-	}
-	for(int i = 0; i <= CELL_WIDTH + 1; i++)
-		for(int j = 0; j <= CELL_HEIGHT + 1; j++)
-			dis[i][j] = CELL_WIDTH * CELL_HEIGHT;
-	dis[nd->x][nd->y] = 0;
-	for(int step = 0; step < CELL_WIDTH * CELL_HEIGHT; step++) {
-		for(int i = 1; i <= CELL_WIDTH; i++) {
-			for(int j = 1; j <= CELL_HEIGHT; j++) {
-				if(gcell[i][j].house || gcell[i][j].light)
-					continue;
-				if(dis[i][j] > dis[i][j - 1])
-					dis[i][j] = min(dis[i][j], dis[i][j - 1] + 1);
-				if(dis[i][j] > dis[i][j + 1]) {
-					dis[i][j] = min(dis[i][j], dis[i][j + 1] + 1);
-				}
-				if(i % 2 == 0) {
-					if(dis[i][j] > dis[i - 1][j - 1])
-						dis[i][j] = min(dis[i][j], dis[i - 1][j - 1] + 1);
-					if(dis[i][j] > dis[i - 1][j])
-						dis[i][j] = min(dis[i][j], dis[i - 1][j] + 1);	
-					if(dis[i][j] > dis[i + 1][j - 1])
-						dis[i][j] = min(dis[i][j], dis[i + 1][j - 1] + 1);
-					if(dis[i][j] > dis[i + 1][j])
-						dis[i][j] = min(dis[i][j], dis[i + 1][j] + 1);				
-				}
-				else {
-					if(dis[i][j] > dis[i - 1][j + 1])
-						dis[i][j] = min(dis[i][j], dis[i - 1][j + 1] + 1);
-					if(dis[i][j] > dis[i - 1][j])
-						dis[i][j] = min(dis[i][j], dis[i - 1][j] + 1);	
-					if(dis[i][j] > dis[i + 1][j + 1])
-						dis[i][j] = min(dis[i][j], dis[i + 1][j + 1] + 1);
-					if(dis[i][j] > dis[i + 1][j])
-						dis[i][j] = min(dis[i][j], dis[i + 1][j] + 1);						
-				}
-			}
-		}
-	}
-	if(ON_MOVE.id != 0) {
-		for(int i = 1; i <= CELL_WIDTH; i++) {
-			for(int j = 1; j <= CELL_HEIGHT; j++) {
-				if(dis[i][j] + dit[i][j] != dis[ON_MOVE.x][ON_MOVE.y] || dit[i][j] > 3 - SG_ABILITY_USE || IS_CHARECTER_IN(i, j) == true)
-					continue;
-				if(Inside_CELL(e, i, j) == BUTTON_SPRITE_MOUSE_DOWN) {
-					SG_ABILITY_USE += dit[i][j];
-					Change_Location(ON_MOVE.x, ON_MOVE.y, i, j);
-					ON_MOVE.x = ON_MOVE.y = ON_MOVE.id = 0;
-					if(SG_ABILITY_USE == 3)
-						return true;
-					return false;
-				}
-			}
-		}
-		return false;	
-	}
-	nw = gcharecter->nxt;
-	while(nw != NULL) {
-		if(strcmp(nw->str, "JW") != 0) {
-			if(Inside_CELL(e, nw->x, nw->y) == BUTTON_SPRITE_MOUSE_DOWN) {
-				ON_MOVE.x = nw->x, ON_MOVE.y = nw->y, ON_MOVE.id = 1;
-				for(int i = 0; i <= CELL_WIDTH + 1; i++)
-					for(int j = 0; j <= CELL_HEIGHT + 1; j++)
-						dit[i][j] = CELL_WIDTH * CELL_HEIGHT;
-				dit[nw->x][nw->y] = 0;
-				for(int step = 0; step < CELL_WIDTH * CELL_HEIGHT; step++) {
-					for(int i = 1; i <= CELL_WIDTH; i++) {
-						for(int j = 1; j <= CELL_HEIGHT; j++) {
-							if(gcell[i][j].house || gcell[i][j].light)
-								continue;
-							if(dit[i][j] > dit[i][j - 1])
-								dit[i][j] = min(dit[i][j], dit[i][j - 1] + 1);
-							if(dit[i][j] > dit[i][j + 1]) {
-								dit[i][j] = min(dit[i][j], dit[i][j + 1] + 1);
-							}
-							if(i % 2 == 0) {
-								if(dit[i][j] > dit[i - 1][j - 1])
-									dit[i][j] = min(dit[i][j], dit[i - 1][j - 1] + 1);
-								if(dit[i][j] > dit[i - 1][j])
-									dit[i][j] = min(dit[i][j], dit[i - 1][j] + 1);	
-								if(dit[i][j] > dit[i + 1][j - 1])
-									dit[i][j] = min(dit[i][j], dit[i + 1][j - 1] + 1);
-								if(dit[i][j] > dit[i + 1][j])
-									dit[i][j] = min(dit[i][j], dit[i + 1][j] + 1);				
-							}
-							else {			
-								if(dit[i][j] > dit[i - 1][j + 1])
-									dit[i][j] = min(dit[i][j], dit[i - 1][j + 1] + 1);
-								if(dit[i][j] > dit[i - 1][j])
-									dit[i][j] = min(dit[i][j], dit[i - 1][j] + 1);	
-								if(dit[i][j] > dit[i + 1][j + 1])
-									dit[i][j] = min(dit[i][j], dit[i + 1][j + 1] + 1);
-								if(dit[i][j] > dit[i + 1][j])
-									dit[i][j] = min(dit[i][j], dit[i + 1][j] + 1);			
-							}
-						}
-					}
-				}
-				return false;
-			}
-		}
-		nw = nw->nxt;
-	}
-	return false;
-}
-
 bool Nobat() {
 	if(LEVEL_NUM % 2 == 1 && (CART_NUM == 1 || CART_NUM == 4))
 		return true;
@@ -877,258 +391,8 @@ bool Nobat() {
 	return false;
 }
 
-
-void Save() {
-	FILE *fpout;
-	fpout = fopen("save.txt", "wb");
-	fwrite(&SCREEN_WIDTH, sizeof(int), 1, fpout);
-	fwrite(&SCREEN_HEIGHT, sizeof(int), 1, fpout);
-	fwrite(&CELL_WIDTH, sizeof(int), 1, fpout);
-	fwrite(&CELL_HEIGHT, sizeof(int), 1, fpout);
-	fwrite(&HOUSE_NUMBER, sizeof(int), 1, fpout);
-	fwrite(&LIGHT_NUMBER, sizeof(int), 1, fpout);
-	fwrite(&HOLES_NUMBER, sizeof(int), 1, fpout);
-	fwrite(&EXIT_NUMBER, sizeof(int), 1, fpout);
-	fwrite(&TOTAL_BUTTONS, sizeof(int), 1, fpout);
-	fwrite(&Jack_Show, sizeof(bool), 1, fpout);
-	fwrite(&BUTTON_END, sizeof(bool), 1, fpout);
-	fwrite(&LEVEL_NUM, sizeof(int), 1, fpout);
-	fwrite(&CART_NUM, sizeof(int), 1, fpout);
-	fwrite(&WHO_IS_JACK, 3 * sizeof(char), 1, fpout);
-	fwrite(&JW_LIGHT, sizeof(enum JW_LIGHT_SITUATION), 1, fpout);
-	fwrite(&SG_ABILITY_USE, sizeof(int), 1, fpout);
-	fwrite(&ON_MOVE, sizeof(JS_IL_JB_ABIULITY), 1, fpout);
-	fwrite(&dis, sizeof(dis), 1, fpout);
-	fwrite(&dit, sizeof(dis), 1, fpout);
-	fwrite(&JS_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpout);
-	fwrite(&IL_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpout);
-	fwrite(&JB_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpout);
-	int sz = 0;
-
-	struct Linked_List* nd = gcharecter->nxt;
-	while(nd != NULL) {
-		sz++;
-		nd = nd->nxt;
-	}
-	printf("%d\n", sz);
-	nd = gcharecter->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nd != NULL) {
-		fwrite(&nd, sizeof(struct Linked_List), 1, fpout);
-		printf("%s\n", nd->str);
-		nd = nd->nxt;
-	}
-	sz = 0;
-	nd = SHcharecter->nxt;
-	while(nd != NULL) {
-		sz++;
-		nd = nd->nxt;
-	}
-	printf("%d\n", sz);
-	nd = SHcharecter->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nd != NULL) {
-		fwrite(&nd, sizeof(struct Linked_List), 1, fpout);
-		printf("%s\n", nd->str);
-		nd = nd->nxt;
-	}
-	sz = 0;
-	nd = Section1->nxt;
-	while(nd != NULL) {
-		sz++;
-		nd = nd->nxt;
-	}
-	nd = Section1->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nd != NULL) {
-		fwrite(&nd, sizeof(struct Linked_List), 1, fpout);
-		nd = nd->nxt;
-	}
-	sz = 0;
-	nd = Section2->nxt;
-	while(nd != NULL) {
-		sz++;
-		nd = nd->nxt;
-	}
-	nd = Section2->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nd != NULL) {
-		fwrite(&nd, sizeof(struct Linked_List), 1, fpout);
-		nd = nd->nxt;
-	}
-	sz = 0;
-	nd = Base->nxt;
-	while(nd != NULL) {
-		sz++;
-		nd = nd->nxt;
-	}
-	nd = Base->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nd != NULL) {
-		fwrite(&nd, sizeof(struct Linked_List), 1, fpout);
-		nd = nd->nxt;
-	}
-	fwrite(&gcell, sizeof(gcell), 1, fpout);
-	fwrite(&glight, sizeof(glight), 1, fpout);
-	fwrite(&ghole, sizeof(ghole), 1, fpout);
-	fwrite(&gexit, sizeof(gexit), 1, fpout);
-	sz = 0;
-	struct Move_Plans* nw = rt->nxt;
-	while(nw != NULL) {
-		sz++;
-		nw = nw->nxt;
-	}
-	nw = rt->nxt;
-	fwrite(&sz, sizeof(int), 1, fpout);
-	while(nw != NULL) {
-		fwrite(&nw, sizeof(struct Move_Plans), 1, fpout);
-		nw = nw->nxt;
-	}
-	fwrite(&Is_In_Move, sizeof(Is_In_Move), 1, fpout);
-	fclose(fpout);
-}
-
-void Load() {
-	printf("h\n");
-	FILE *fpin;
-	fpin = fopen("save.txt", "rb");
-	fread(&SCREEN_WIDTH, sizeof(int), 1, fpin);
-	fread(&SCREEN_HEIGHT, sizeof(int), 1, fpin);
-	fread(&CELL_WIDTH, sizeof(int), 1, fpin);
-	fread(&CELL_HEIGHT, sizeof(int), 1, fpin);
-	fread(&HOUSE_NUMBER, sizeof(int), 1, fpin);
-	fread(&LIGHT_NUMBER, sizeof(int), 1, fpin);
-	fread(&HOLES_NUMBER, sizeof(int), 1, fpin);
-	fread(&EXIT_NUMBER, sizeof(int), 1, fpin);
-	fread(&TOTAL_BUTTONS, sizeof(int), 1, fpin);
-	fread(&Jack_Show, sizeof(bool), 1, fpin);
-	fread(&BUTTON_END, sizeof(bool), 1, fpin);
-	fread(&LEVEL_NUM, sizeof(int), 1, fpin);
-	fread(&CART_NUM, sizeof(int), 1, fpin);
-	fread(&WHO_IS_JACK, 3 * sizeof(char), 1, fpin);
-	fread(&JW_LIGHT, sizeof(enum JW_LIGHT_SITUATION), 1, fpin);
-	fread(&SG_ABILITY_USE, sizeof(int), 1, fpin);
-	fread(&ON_MOVE, sizeof(JS_IL_JB_ABIULITY), 1, fpin);
-	fread(&dis, sizeof(dis), 1, fpin);
-	fread(&dit, sizeof(dis), 1, fpin);
-	fread(&JS_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpin);
-	fread(&IL_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpin);
-	fread(&JB_SITUATION, sizeof(JS_IL_JB_ABIULITY), 1, fpin);
-	int sz = 0;
-	struct Linked_List* nd = gcharecter;
-	fread(&sz, sizeof(int), 1, fpin);
-	printf("%d\n", sz);
-	while(sz--) {
-		struct Linked_List* nw = (struct Linked_List*)malloc(sizeof(struct Linked_List));
-		fwrite(&nw, sizeof(struct Linked_List), 1, fpin);
-		printf("%s\n", nw->str);
-		nd->nxt = nw;
-		nd = nw;
-	}
-	printf("how\n");
-	sz = 0;
-	nd = SHcharecter;
-	fread(&sz, sizeof(int), 1, fpin);
-	printf("%d\n", sz);
-	while(sz--) {
-		struct Linked_List* nw = (struct Linked_List*)malloc(sizeof(struct Linked_List));
-		fwrite(&nw, sizeof(struct Linked_List), 1, fpin);
-		nw->nxt = NULL;
-		nd->nxt = nw;
-		nd = nw;
-	}
-	printf("fuck 0\n");
-	sz = 0;
-	nd = Section1;
-	fread(&sz, sizeof(int), 1, fpin);
-	while(sz--) {
-		struct Linked_List* nw = (struct Linked_List*)malloc(sizeof(struct Linked_List));
-		fwrite(&nw, sizeof(struct Linked_List), 1, fpin);
-		nw->nxt = NULL;
-		nd->nxt = nw;
-		nd = nw;
-	}
-	printf("fuck 2\n");
-	sz = 0;
-	nd = Section2;
-	fread(&sz, sizeof(int), 1, fpin);
-	while(sz--) {
-		struct Linked_List* nw = (struct Linked_List*)malloc(sizeof(struct Linked_List));
-		fwrite(&nw, sizeof(struct Linked_List), 1, fpin);
-		nw->nxt = NULL;
-
-		nd->nxt = nw;
-		nd = nw;
-	}
-	sz = 0;
-	nd = Base;
-	fread(&sz, sizeof(int), 1, fpin);
-	while(sz--) {
-		struct Linked_List* nw = (struct Linked_List*)malloc(sizeof(struct Linked_List));
-		fwrite(&nw, sizeof(struct Linked_List), 1, fpin);
-		nw->nxt = NULL;
-
-		nd->nxt = nw;
-		nd = nw;
-	}
-	printf("fuck 3\n");
-	fread(&gcell, sizeof(gcell), 1, fpin);
-	fread(&glight, sizeof(glight), 1, fpin);
-	fread(&ghole, sizeof(ghole), 1, fpin);
-	fread(&gexit, sizeof(gexit), 1, fpin);
-	sz = 0;
-	rt = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-	rt->nxt = NULL;
-	struct Move_Plans* nw = rt;
-	fread(&sz, sizeof(int), 1, fpin);
-		printf("fuck 4\n");
-	while(sz--) {
-		struct Move_Plans* nf = (struct Move_Plans*)malloc(sizeof(struct Move_Plans));
-		fwrite(&nf, sizeof(struct Move_Plans), 1, fpin);
-		nf->nxt = NULL;
-		nw->nxt = nf;
-		nw = nf;
-	}
-	fread(&Is_In_Move, sizeof(Is_In_Move), 1, fpin);
-	fclose(fpin);
-}
-
-void MENU() {
-	while(true) {
-  		SDL_SetRenderDrawColor(gRenderer, 102, 94, 76, 0);
-  		SDL_RenderClear(gRenderer);
-  		SDL_Event sdlevent;
-  		int SHUTDOWNCODE=0;
-	    while (SDL_PollEvent(&sdlevent)) {
-	        if (sdlevent.type==SDL_QUIT) {
-	            SHUTDOWNCODE=1;
-	            break;
-	        }
-			SDL_Event* e = &sdlevent;
-			if(e->type != SDL_MOUSEMOTION && e->type != SDL_MOUSEBUTTONDOWN && e->type != SDL_MOUSEBUTTONUP) 
-				continue;
-			if(Inside_Box(e, 200, 300, 70, 30) == BUTTON_SPRITE_MOUSE_DOWN) {
-				Save();
-				return;
-			}
-			if(Inside_Box(e, 600, 300, 70, 30) == BUTTON_SPRITE_MOUSE_DOWN) {
-				Load();
-				return;
-			}
-	    }
-	    if (SHUTDOWNCODE) break;
-		boxRGBA(gRenderer, 200, 300, 270, 330, 0, 0, 0, 150);
-		char ms[5] = "SAVE\0";
-		SDL_Color color2 = { 255, 255, 255 };
-		Print(ms, 200, 300, 10, 10, color2);
-		boxRGBA(gRenderer, 600, 300, 670, 330, 0, 0, 0, 150);
-		char ml[5] = "LOAD\0";
-		SDL_Color color3 = { 255, 255, 255 };
-		Print(ml, 600, 300, 10, 10, color3);
-		SDL_RenderPresent(gRenderer);
-  		SDL_Delay(1000/FPS);
-  	}
-}
+#include "MENU_SAVE_LOAD.h"
+#include "Ability.h"
 
 void handleEvent(SDL_Event* e) {
 	//If mouse event happened
@@ -1191,7 +455,6 @@ void handleEvent(SDL_Event* e) {
 			}
 			nw->BUTTON_SETIATION = IS_SELECTED_AND_SELECT_ABILITY;
 
-//			printf("%s %d\n", nw->str, nw->BUTTON_SETIATION);
 		}
 		return;
 	}
@@ -1427,7 +690,6 @@ void UPDATE_INNOCATE() {
 	Jack_Show = Found_In_Light(t);
 	struct Linked_List* nd = gcharecter->nxt;
 	while(nd != NULL) {
-		printf("%d %d\n", Jack_Show, Found_In_Light(nd->str));
 		if(strcmp(nd->str, WHO_IS_JACK) != 0 && Found_In_Light(nd->str) != Jack_Show) {
 			nd->Innocent = true;
 		}
@@ -1647,8 +909,43 @@ void JMap_Render() {
 		if(nd->BUTTON_SETIATION != IS_DONE && nd->BUTTON_SETIATION != IS_NOT_SELECT) {
 			int x1 = SCREEN_WIDTH - 3 * HEXAGON_HEIGHT + CBUTTON_WIGHT + HEXAGON_HEIGHT / 4, y1 = cnt * HEXAGON_HEIGHT * 2 + HEXAGON_HEIGHT / 2;
 			int x2 = x1, y2 = y1 + CBUTTON_HEIGHT / 2 + 2;
+			SDL_Color color = {0, 0, 0};
 			boxRGBA(gRenderer, x1, y1, SCREEN_WIDTH, y1 + CBUTTON_HEIGHT / 2 - 2, 160, 255, 47, 255);
+			char t[5] = "MOVE\0";
+			Print(t, x1, y1, SCREEN_WIDTH - x1, CBUTTON_HEIGHT / 2 - 2, color);
 			boxRGBA(gRenderer, x2, y2, SCREEN_WIDTH, y2 + CBUTTON_HEIGHT / 2 - 2, 160, 255, 47, 255);
+			if(strcmp("SH", nd->str) == 0) {
+				char ab[13] = "Show a Cart\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("JW", nd->str) == 0) {
+				char ab[14] = "Light a Side\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("JS", nd->str) == 0) {
+				char ab[16] = "Change a Light\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("IL", nd->str) == 0) {
+				char ab[15] = "Change a Exit\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}
+			else if(strcmp("MS", nd->str) == 0) {
+				char ab[18] = "Move from Houses\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}			
+			else if(strcmp("SG", nd->str) == 0) {
+				char ab[13] = "SOOT MIZANE\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
+			else if(strcmp("WG", nd->str) == 0) {
+				char ab[30] = "Change location with another\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
+			else if(strcmp("JB", nd->str) == 0) {
+				char ab[16] = "Chanege a Hole\0";
+				Print(ab, x2, y2, SCREEN_WIDTH - x2, CBUTTON_HEIGHT / 2 - 2, color);
+			}	
 		}
 		if(nd->BUTTON_SETIATION == IS_SELECTED_AND_SELECT_MOVE || nd->BUTTON_SETIATION == IS_SELECTED_ABILITY_MOVE_IS_GOING) {
 			struct Move_Plans* nw = rt->nxt;
@@ -1850,6 +1147,7 @@ int main() {
 	Input();
 	TTF_Init();
 	gFont = TTF_OpenFont( "IRNazanin.ttf", 28);
+	gFont2 = TTF_OpenFont( "IRNazanin.ttf", 20);
 	if(gFont == NULL) {
 		printf( "Failed to load font! SDL_ttf Error: %s\n", TTF_GetError() );
 		return 0;
